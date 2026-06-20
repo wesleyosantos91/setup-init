@@ -47,21 +47,48 @@ else
       install -m 755 "$extracted" "$TOOLBOX_BIN"
       rm -rf "$tmp"   # seguro: o binário já está em $TOOLBOX_BIN
       ok "Toolbox instalado em $TOOLBOX_BIN"
-
-      if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
-        log "Iniciando o Toolbox (faça login e instale as IDEs abaixo)"
-        # Se o FUSE não estiver presente, extrai o AppImage em vez de montá-lo.
-        if ldconfig -p 2>/dev/null | grep -q 'libfuse\.so\.2'; then
-          nohup "$TOOLBOX_BIN" >/dev/null 2>&1 &
-        else
-          APPIMAGE_EXTRACT_AND_RUN=1 nohup "$TOOLBOX_BIN" >/dev/null 2>&1 &
-        fi
-        disown
-        ok "Toolbox iniciado"
-      else
-        warn "Sem sessão gráfica (DISPLAY/WAYLAND) — abra manualmente: $TOOLBOX_BIN"
-      fi
     fi
+  fi
+fi
+
+# --- Local de instalação das IDEs (~/Develop/Tools) ---
+# Configura o Toolbox para instalar as IDEs nessa pasta, em vez do padrão
+# (~/.local/share/JetBrains/Toolbox/apps). Vale mesmo se o Toolbox já existia.
+if [[ -x "$TOOLBOX_BIN" ]]; then
+  TOOLS_DIR="$HOME/Develop/Tools"
+  mkdir -p "$TOOLS_DIR"
+  SETTINGS_FILE="$TOOLBOX_DIR/.settings.json"
+  log "Definindo local de instalação das IDEs: $TOOLS_DIR"
+  if have jq && [[ -f "$SETTINGS_FILE" ]]; then
+    # Preserva as demais configurações existentes
+    tmp_s="$(mktemp)"
+    if jq --arg p "$TOOLS_DIR" '.install_location = $p' "$SETTINGS_FILE" > "$tmp_s"; then
+      mv "$tmp_s" "$SETTINGS_FILE"
+    else
+      rm -f "$tmp_s"; warn "Não consegui atualizar $SETTINGS_FILE"
+    fi
+  else
+    cat > "$SETTINGS_FILE" <<JSON
+{
+  "install_location": "$TOOLS_DIR"
+}
+JSON
+  fi
+  ok "IDEs serão instaladas em $TOOLS_DIR"
+
+  # --- Inicia o Toolbox (login + instalação das IDEs) ---
+  if [[ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+    log "Iniciando o Toolbox (faça login e instale as IDEs abaixo)"
+    # Se o FUSE não estiver presente, extrai o AppImage em vez de montá-lo.
+    if ldconfig -p 2>/dev/null | grep -q 'libfuse\.so\.2'; then
+      nohup "$TOOLBOX_BIN" >/dev/null 2>&1 &
+    else
+      APPIMAGE_EXTRACT_AND_RUN=1 nohup "$TOOLBOX_BIN" >/dev/null 2>&1 &
+    fi
+    disown
+    ok "Toolbox iniciado"
+  else
+    warn "Sem sessão gráfica (DISPLAY/WAYLAND) — abra manualmente: $TOOLBOX_BIN"
   fi
 fi
 
@@ -75,6 +102,8 @@ cat <<'EOF'
     • DataGrip
     • RustRover
     • AIR
+
+  As IDEs serão instaladas em: ~/Develop/Tools
 
   O PATH dos scripts do Toolbox já está no ~/.profile:
     $PATH:~/.local/share/JetBrains/Toolbox/scripts
