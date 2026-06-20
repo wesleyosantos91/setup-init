@@ -42,11 +42,18 @@ for name in "${!PLUGINS[@]}"; do
 done
 
 # --- Define zsh como shell padrão ---
-if [[ "$SHELL" != *zsh ]]; then
-  log "Definindo zsh como shell padrão"
-  sudo chsh -s "$(command -v zsh)" "$USER" || warn "Não consegui mudar o shell automaticamente; rode: chsh -s \$(which zsh)"
-else
+ZSH_BIN="$(command -v zsh 2>/dev/null || true)"
+if [[ -z "$ZSH_BIN" ]]; then
+  warn "zsh não encontrado — instale-o via 00-system-packages antes de rodar este script"
+elif [[ "$SHELL" == *zsh ]]; then
   ok "zsh já é o shell padrão"
+else
+  log "Definindo zsh como shell padrão"
+  # chsh exige que o shell esteja listado em /etc/shells
+  grep -qxF "$ZSH_BIN" /etc/shells || echo "$ZSH_BIN" | sudo tee -a /etc/shells >/dev/null
+  sudo chsh -s "$ZSH_BIN" "$USER" \
+    || sudo usermod -s "$ZSH_BIN" "$USER" \
+    || warn "Não consegui mudar o shell; rode manualmente: chsh -s $ZSH_BIN"
 fi
 
 ok "Ambiente de shell pronto"
