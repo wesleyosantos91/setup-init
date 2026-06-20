@@ -17,11 +17,20 @@ section "Ferramentas extras"
 mkdir -p "$HOME/.local/bin"
 
 # --- EPEL (necessário para várias dessas ferramentas) ---
+RHEL_VER="$(. /etc/os-release; echo "${VERSION_ID%%.*}")"
 if ! sudo dnf repolist 2>/dev/null | grep -qi epel; then
   log "Habilitando EPEL"
-  RHEL_VER="$(. /etc/os-release; echo "${VERSION_ID%%.*}")"
   sudo dnf -y install "https://dl.fedoraproject.org/pub/epel/epel-release-latest-${RHEL_VER}.noarch.rpm" || \
     warn "Falha ao habilitar EPEL automaticamente — alguns pacotes podem faltar"
+fi
+
+# --- CRB (CodeReady Linux Builder) — exigido por muitos pacotes EPEL no RHEL 10+ ---
+# O próprio epel-release avisa: "It is recommended that you run /usr/bin/crb enable"
+if [[ "$RHEL_VER" -ge 10 ]]; then
+  log "Habilitando CRB (requerido por pacotes EPEL)"
+  sudo /usr/bin/crb enable 2>/dev/null || \
+    sudo dnf config-manager --enable crb 2>/dev/null || \
+    warn "CRB não pôde ser habilitado — zoxide/direnv podem não estar disponíveis"
 fi
 
 # --- Pacotes via dnf/EPEL ---
