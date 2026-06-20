@@ -18,15 +18,14 @@ STEPS=(
   "00-system-packages.sh"   # dnf: docker, gh, git, build tools, etc.
   "01-flatpak.sh"           # VS Code, Flameshot, Insomnia
   "02-shell-zsh-omz.sh"     # zsh + oh-my-zsh + p10k + plugins
-  "03-version-managers.sh"  # SDKMAN, nvm, pyenv, goenv
-  "04-sdks.sh"              # Java/Maven/Gradle, Node, Python, Go (versões fixas)
+  "03-version-managers.sh"  # SDKMAN, nvm, pyenv, goenv, rustup
+  "04-sdks.sh"              # Java/Maven/Gradle, Node, Python, Go, Rust (versões fixas)
   "05-npm-globals.sh"       # pacotes npm globais
   "06-cli-tools.sh"         # claude, codex, agy, rtk
   "07-dotfiles.sh"          # restaura .zshrc, .gitconfig, ssh, gh, etc.
   "08-git-github.sh"        # gh auth login + verificação
   "09-jetbrains.sh"         # JetBrains Toolbox + IDEs
   "10-docker.sh"            # serviço docker + grupo
-  "11-rust.sh"              # Rust via rustup (stable + cargo/rustfmt/clippy)
   "12-fonts.sh"             # fontes do usuário (MesloLGS NF p/ p10k)
   "13-extra-tools.sh"       # delta, fzf, zoxide, bat, fd, direnv, lazygit, etc.
   "14-lang-toolkits.sh"     # toolkits por linguagem (JVM/Go/Python/Node/Rust)

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Instala as versões específicas de cada SDK/linguagem capturadas da máquina.
+# Requer que 03-version-managers.sh tenha rodado antes (SDKMAN, nvm, pyenv, goenv, rustup).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
@@ -70,6 +71,24 @@ if [[ -d "$GOENV_ROOT/bin" ]]; then
   ok "goenv configurado (global = 1.26.4)"
 else
   warn "goenv não encontrado — rode 03-version-managers.sh antes"
+fi
+
+# ---------------------------------------------------------------------------
+# rustup: Rust stable + rustfmt + clippy
+# ---------------------------------------------------------------------------
+# shellcheck source=/dev/null
+[[ -s "$HOME/.cargo/env" ]] && { set +u; source "$HOME/.cargo/env"; set -u; }
+if have rustup; then
+  log "Rust: garantindo toolchain stable e componentes"
+  set +u
+  rustup toolchain install stable --profile default
+  rustup update stable
+  rustup default stable
+  rustup component add rustfmt clippy 2>/dev/null || true
+  set -u
+  ok "Rust pronto: $(rustc --version) | $(cargo --version)"
+else
+  warn "rustup não encontrado — rode 03-version-managers.sh antes"
 fi
 
 ok "SDKs instalados"

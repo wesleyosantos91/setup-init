@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
-section "Gerenciadores de versão (SDKMAN, nvm, pyenv, goenv)"
+section "Gerenciadores de versão (SDKMAN, nvm, pyenv, goenv, rustup)"
 
 # --- SDKMAN (Java / Maven / Gradle) ---
 if [[ -d "$HOME/.sdkman" ]]; then
@@ -49,6 +49,19 @@ elif [[ -d "$HOME/.goenv" ]]; then
 else
   log "Instalando goenv"
   git clone --depth=1 https://github.com/go-nv/goenv.git "$HOME/.goenv"
+fi
+
+# --- rustup (Rust) ---
+if [[ -d "$HOME/.rustup" ]] && have rustc; then
+  log "rustup presente — atualizando toolchain stable"
+  # shellcheck source=/dev/null
+  [[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  rustup update stable 2>/dev/null || warn "não atualizou o rustup"
+else
+  log "Instalando rustup"
+  # -y: não interativo | --no-modify-path: PATH gerenciado pelos dotfiles
+  curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs \
+    | sh -s -- -y --default-toolchain stable --profile default --no-modify-path
 fi
 
 ok "Gerenciadores de versão instalados (os dotfiles já cuidam do PATH/init)"
