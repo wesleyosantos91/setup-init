@@ -11,10 +11,17 @@ section "CLIs de IA / produtividade (~/.local/bin)"
 
 mkdir -p "$HOME/.local/bin"
 
+# Quando o tool já existe, pulamos por padrão. Defina SETUP_UPDATE=1 para
+# forçar a atualização dos CLIs já instalados.
+
 # --- Claude Code ---
 if have claude; then
-  log "claude presente — atualizando"
-  claude update >/dev/null 2>&1 || warn "não atualizou o claude (siga manualmente se preciso)"
+  if [[ "${SETUP_UPDATE:-0}" == "1" ]]; then
+    log "claude presente — atualizando (SETUP_UPDATE=1)"
+    claude update >/dev/null 2>&1 || warn "não atualizou o claude (siga manualmente se preciso)"
+  else
+    ok "claude já instalado (use SETUP_UPDATE=1 para atualizar)"
+  fi
 else
   log "Instalando Claude Code"
   curl -fsSL https://claude.ai/install.sh | bash || \
@@ -23,9 +30,13 @@ fi
 
 # --- Antigravity CLI (agy) ---
 if have agy; then
-  log "agy (Antigravity) presente — tentando atualizar"
-  agy update >/dev/null 2>&1 || curl -fsSL https://antigravity.google/install.sh | bash || \
-    warn "não atualizou o agy"
+  if [[ "${SETUP_UPDATE:-0}" == "1" ]]; then
+    log "agy (Antigravity) presente — tentando atualizar (SETUP_UPDATE=1)"
+    agy update >/dev/null 2>&1 || curl -fsSL https://antigravity.google/install.sh | bash || \
+      warn "não atualizou o agy"
+  else
+    ok "agy já instalado (use SETUP_UPDATE=1 para atualizar)"
+  fi
 else
   log "Instalando Antigravity CLI (agy)"
   curl -fsSL https://antigravity.google/install.sh | bash || \

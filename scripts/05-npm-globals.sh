@@ -27,7 +27,21 @@ PKGS=(
   repomix
 )
 
-log "Instalando: ${PKGS[*]}"
-npm install -g "${PKGS[@]}"
+# Instala apenas os pacotes ausentes (pula os já presentes no Node atual).
+# Use SETUP_UPDATE=1 para reinstalar/atualizar todos, mesmo os existentes.
+to_install=()
+for pkg in "${PKGS[@]}"; do
+  if [[ "${SETUP_UPDATE:-0}" != "1" ]] && npm ls -g --depth=0 "$pkg" >/dev/null 2>&1; then
+    ok "$pkg já instalado"
+  else
+    to_install+=("$pkg")
+  fi
+done
 
-ok "Pacotes npm globais instalados"
+if [[ ${#to_install[@]} -gt 0 ]]; then
+  log "Instalando: ${to_install[*]}"
+  npm install -g "${to_install[@]}"
+  ok "Pacotes npm globais instalados"
+else
+  ok "Todos os pacotes npm globais já presentes — nada a instalar"
+fi
