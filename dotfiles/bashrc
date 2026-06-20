@@ -12,6 +12,17 @@ then
 fi
 export PATH
 
+# Troca automaticamente para o zsh em shells interativos.
+# Garante o zsh + Powerlevel10k mesmo quando o terminal gráfico abre o bash
+# (ex.: o 'chsh' ainda não valeu por falta de logout/login da sessão).
+# Salvaguardas: só em shell interativo, com zsh disponível, e nunca em
+# 'bash -c "..."' (BASH_EXECUTION_STRING) para não quebrar scripts/IDEs.
+if [[ $- == *i* ]] && [[ -z "${BASH_EXECUTION_STRING:-}" ]] \
+   && [[ -z "${ZSH_VERSION:-}" ]] && command -v zsh >/dev/null 2>&1; then
+  export SHELL="$(command -v zsh)"
+  exec zsh
+fi
+
 # Uncomment the following line if you don't like systemctl's auto-paging feature:
 # export SYSTEMD_PAGER=
 
