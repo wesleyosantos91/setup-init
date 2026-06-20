@@ -53,6 +53,33 @@ if ! have bat && have batcat; then
   ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
 fi
 
+# --- Fallbacks para pacotes ausentes no EPEL 10 ---
+# Vários pacotes ainda não foram portados para EPEL 10; instalamos via
+# binário GitHub ou cargo quando dnf não os encontra.
+
+# git-delta (comando: delta) — binário GitHub
+if ! have delta; then
+  install_gh_bin "dandavison/delta" "${ARCH}-unknown-linux-musl.tar.gz" "delta"
+fi
+
+# zoxide — cargo (Rust disponível via script 04) com fallback GitHub
+if ! have zoxide; then
+  # shellcheck source=/dev/null
+  [[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  if have cargo; then
+    log "zoxide: instalando via cargo"
+    cargo install zoxide --locked 2>/dev/null || warn "Falha ao instalar zoxide via cargo"
+  else
+    install_gh_bin "ajeetdsoudy/zoxide" "${ARCH}-unknown-linux-musl.tar.gz" "zoxide"
+  fi
+fi
+
+# direnv — binário GitHub
+if ! have direnv; then
+  DIR_ARCH="amd64"; [[ "$ARCH" == "aarch64" ]] && DIR_ARCH="arm64"
+  install_gh_bin "direnv/direnv" "direnv.linux-${DIR_ARCH}" "direnv"
+fi
+
 # --- Binários do GitHub (arquitetura detectada) ---
 ARCH="$(uname -m)"   # x86_64 / aarch64
 
