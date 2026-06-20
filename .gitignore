@@ -1,0 +1,8 @@
+# Segredos — NUNCA versionar
+secrets/
+
+# Backups gerados pela restauração
+*.bak.*
+
+# Configurações locais do Claude Code
+.claude/settings.local.json

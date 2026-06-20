@@ -1,0 +1,165 @@
+[user]
+    name = Wesley Oliveira
+    email = wesleyosantos91@gmail.com
+    signingkey = /home/wesleyosantos/.ssh/id_rsa_git_signing.pub
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = /home/wesleyosantos/.config/git/allowed_signers
+
+[commit]
+    gpgsign = true
+    verbose = true
+
+[tag]
+    gpgsign = true
+    sort = -version:refname
+
+[core]
+    editor = vim
+    autocrlf = input
+    safecrlf = warn
+    filemode = true
+    ignorecase = false
+    excludesfile = /home/wesleyosantos/.gitignore_global
+    whitespace = trailing-space,space-before-tab
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true
+    line-numbers = true
+    side-by-side = false
+
+[color]
+    ui = auto
+
+[column]
+    ui = auto
+
+[init]
+    defaultBranch = main
+
+[branch]
+    sort = -committerdate
+    autosetupmerge = always
+
+[push]
+    default = current
+    autoSetupRemote = true
+    followTags = true
+
+[pull]
+    rebase = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+    updateRefs = true
+
+[fetch]
+    prune = true
+    pruneTags = true
+
+[diff]
+    algorithm = histogram
+    renames = copies
+    colorMoved = default
+    mnemonicPrefix = true
+
+[merge]
+    conflictstyle = zdiff3
+    ff = only
+
+[rerere]
+    enabled = true
+    autoupdate = true
+
+[help]
+    autocorrect = prompt
+
+[advice]
+    detachedHead = false
+
+[alias]
+    st = status -sb
+    s = status -sb
+
+    lg = log --oneline --decorate --all --graph
+    lga = log --oneline --decorate --all --graph --stat
+    hist = "log --pretty=format:%C(yellow)%h%Creset %C(cyan)%ad%Creset | %s%C(auto)%d%Creset %C(green)[%an]%Creset --graph --date=short"
+    last = log -1 HEAD --stat
+    who = shortlog -sn
+
+    br = branch
+    brs = branch --sort=-committerdate
+    co = checkout
+    cb = checkout -b
+    sw = switch
+    swc = switch -c
+    current = branch --show-current
+
+    c = commit -S
+    cm = commit -S -m
+    cam = "!git add -A && git commit -S -m"
+    amend = commit --amend --no-edit
+    amendm = commit --amend -S -m
+    uncommit = reset --soft HEAD~1
+
+    feat = "!f() { git commit -S -m \"feat: $*\"; }; f"
+    fix = "!f() { git commit -S -m \"fix: $*\"; }; f"
+    docs = "!f() { git commit -S -m \"docs: $*\"; }; f"
+    refactor = "!f() { git commit -S -m \"refactor: $*\"; }; f"
+    test = "!f() { git commit -S -m \"test: $*\"; }; f"
+    chore = "!f() { git commit -S -m \"chore: $*\"; }; f"
+    perf = "!f() { git commit -S -m \"perf: $*\"; }; f"
+    ci = "!f() { git commit -S -m \"ci: $*\"; }; f"
+    wip = "!git add -A && git commit -S -m \"chore: wip checkpoint\""
+
+    psh = push origin HEAD
+    pf = push --force-with-lease
+    up = "!git pull --rebase --autostash"
+    upm = "!git fetch origin main && git rebase --autostash origin/main"
+    sync = "!git pull --rebase --autostash && git push"
+
+    d = diff
+    ds = diff --staged
+    review = diff --cached
+    word = diff --word-diff
+    showfiles = diff-tree --no-commit-id --name-only -r
+    staged = diff --name-only --cached
+
+    unstage = restore --staged
+    discard = restore
+    restore-file = restore
+    wipe = reset --hard HEAD
+    clean-all = clean -fdx
+
+    rb = rebase
+    rbi = rebase -i
+    abort = rebase --abort
+    cont = rebase --continue
+    skip = rebase --skip
+
+    conflicts = diff --name-only --diff-filter=U
+    ours = checkout --ours
+    theirs = checkout --theirs
+
+    tags = tag -l
+    latest = describe --tags --abbrev=0
+    tagv = tag -s
+
+    root = rev-parse --show-toplevel
+    aliases = config --get-regexp alias
+    cleanup = "!git branch --merged | grep -Ev '(^[*]|main|master|develop|release|hotfix)' | xargs -r git branch -d"
+    gone = "!git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -D"
+
+    find = "!f() { git log --all --decorate --oneline --grep=\"$*\"; }; f"
+    findfile = "!f() { git log --all -- \"$*\"; }; f"
+
+[includeIf "gitdir:/home/wesleyosantos/workspace/itau/"]
+    path = /home/wesleyosantos/.gitconfig-itau
