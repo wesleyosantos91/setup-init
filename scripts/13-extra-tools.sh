@@ -94,6 +94,38 @@ if ! have yq; then
   install_gh_bin "mikefarah/yq" "yq_linux_${YQ_ARCH}\b" "yq"
 fi
 
+# --- Fallbacks para pacotes ausentes no EPEL 10 ---
+# git-delta, zoxide e direnv ainda não foram portados para o EPEL 10 (mesmo
+# com CRB habilitado). Quando o dnf não os instala, usamos binário/cargo.
+
+# git-delta (comando: delta) — binário GitHub
+if ! have delta; then
+  DELTA_TARGET="x86_64-unknown-linux-musl"
+  [[ "$ARCH" == "aarch64" ]] && DELTA_TARGET="aarch64-unknown-linux-gnu"
+  install_gh_bin "dandavison/delta" "${DELTA_TARGET}.tar.gz" "delta"
+fi
+
+# zoxide — via cargo (Rust dos scripts 03/04); fallback p/ script oficial
+if ! have zoxide; then
+  # shellcheck source=/dev/null
+  [[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+  if have cargo; then
+    log "Instalando zoxide via cargo"
+    cargo install zoxide --locked || warn "Falha ao instalar zoxide via cargo"
+  else
+    log "cargo indisponível — instalando zoxide via script oficial"
+    curl -fsSL https://raw.githubusercontent.com/ajeetdsoudy/zoxide/main/install.sh \
+      | bash -s -- --bin-dir "$HOME/.local/bin" 2>/dev/null \
+      || warn "Falha ao instalar zoxide (instale manualmente)"
+  fi
+fi
+
+# direnv — binário GitHub (asset é o binário direto, não tarball)
+if ! have direnv; then
+  DIR_ARCH="amd64"; [[ "$ARCH" == "aarch64" ]] && DIR_ARCH="arm64"
+  install_gh_bin "direnv/direnv" "direnv.linux-${DIR_ARCH}" "direnv"
+fi
+
 # --- tldr via tealdeer (cargo) ---
 if have tldr; then
   ok "tldr já instalado"
