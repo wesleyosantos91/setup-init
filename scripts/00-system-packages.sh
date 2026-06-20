@@ -19,6 +19,20 @@ add_repo() {
   sudo curl -fsSL "$url" -o "$dest"
 }
 
+# --- CRB (CodeReady Linux Builder) — exigido pelos pacotes -devel no RHEL 10 ---
+# Tenta habilitar via dnf config-manager (dnf5/dnf4) ou subscription-manager.
+if [[ "$RHEL_VER" -ge 10 ]]; then
+  log "Habilitando repositório CRB (CodeReady Linux Builder)"
+  if sudo dnf config-manager --enable crb 2>/dev/null; then
+    ok "CRB habilitado via dnf config-manager"
+  elif sudo subscription-manager repos \
+         --enable "codeready-builder-for-rhel-${RHEL_VER}-$(arch)-rpms" 2>/dev/null; then
+    ok "CRB habilitado via subscription-manager"
+  else
+    warn "CRB não pôde ser habilitado — pacotes *-devel podem não estar disponíveis"
+  fi
+fi
+
 # --- Repositório Docker CE ---
 add_repo "https://download.docker.com/linux/rhel/docker-ce.repo" "docker-ce.repo"
 # A Docker pode ainda não publicar o caminho para o RHEL mais novo ($releasever).
@@ -34,9 +48,17 @@ fi
 # --- Repositório GitHub CLI (gh) ---
 add_repo "https://cli.github.com/packages/rpm/gh-cli.repo" "gh-cli.repo"
 
+# No RHEL 10 (dnf5) usamos --skip-unavailable para não abortar caso algum
+# pacote ainda não exista no repositório ativo (ex.: sistema sem assinatura).
+DNF_EXTRA_FLAGS=""
+if [[ "$RHEL_VER" -ge 10 ]]; then
+  DNF_EXTRA_FLAGS="--skip-unavailable"
+fi
+
 # --- Pacotes base de desenvolvimento ---
 log "Instalando ferramentas base"
-sudo dnf -y install \
+# shellcheck disable=SC2086
+sudo dnf -y $DNF_EXTRA_FLAGS install \
   git gh jq make automake gcc gcc-c++ cmake \
   curl wget tree vim-enhanced zsh \
   zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
@@ -48,7 +70,8 @@ sudo dnf -y install \
 
 # --- Docker CE ---
 log "Instalando Docker CE"
-sudo dnf -y install docker-ce docker-ce-cli containerd.io \
+# shellcheck disable=SC2086
+sudo dnf -y $DNF_EXTRA_FLAGS install docker-ce docker-ce-cli containerd.io \
   docker-buildx-plugin docker-compose-plugin docker-ce-rootless-extras
 
 ok "Pacotes de sistema instalados"

@@ -12,12 +12,16 @@ export SDKMAN_DIR="$HOME/.sdkman"
 if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
   set +u; source "$SDKMAN_DIR/bin/sdkman-init.sh"; set -u
   log "SDKMAN: instalando Java 25.0.3-tem / Maven 3.9.16 / Gradle 9.6.0"
+  # SDKMAN usa parâmetros posicionais opcionais ($3, etc.) internamente;
+  # desativamos nounset durante as chamadas para evitar "variável não associada".
+  set +u
   sdk install java   25.0.3-tem || true
   sdk install maven  3.9.16     || true
   sdk install gradle 9.6.0      || true
   sdk default java   25.0.3-tem || true
   sdk default maven  3.9.16     || true
   sdk default gradle 9.6.0      || true
+  set -u
   ok "SDKMAN configurado"
 else
   warn "SDKMAN não encontrado — rode 03-version-managers.sh antes"
