@@ -40,6 +40,15 @@ fi
 if gh auth status >/dev/null 2>&1; then
   host="$(hostname -s 2>/dev/null || echo setup)"
 
+  # Em máquina autenticada ANTES (token sem admin:ssh_signing_key), o cadastro
+  # da chave de ASSINATURA falharia. Detecta e adiciona o escopo via refresh
+  # (passo interativo curto). Num 'gh auth login' novo o escopo já vem do -s.
+  if ! gh auth status 2>&1 | grep -q 'admin:ssh_signing_key'; then
+    warn "Token sem 'admin:ssh_signing_key' (necessário p/ a chave de assinatura) — atualizando"
+    gh auth refresh -h github.com -s admin:ssh_signing_key \
+      || warn "Não adicionei o escopo; rode: gh auth refresh -h github.com -s admin:ssh_signing_key"
+  fi
+
   # Lista títulos já cadastrados para evitar duplicar
   existing_auth="$(gh ssh-key list 2>/dev/null || true)"
 
