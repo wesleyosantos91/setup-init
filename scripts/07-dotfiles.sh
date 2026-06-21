@@ -44,7 +44,35 @@ if [[ -d "$SECRETS_DIR" ]]; then
   done
   [[ -f "$SECRETS_DIR/known_hosts" ]] && install -m 644 "$SECRETS_DIR/known_hosts" "$HOME/.ssh/known_hosts"
 else
-  warn "Pasta secrets/ não encontrada — chaves SSH não restauradas"
+  warn "Pasta secrets/ não encontrada — chaves SSH serão geradas se ausentes"
+fi
+
+# Se alguma chave continuar ausente (sem backup em secrets/), gera uma nova
+# automaticamente (ed25519). A pública é cadastrada no GitHub pela etapa 08
+# (requer 'gh' autenticado com escopo admin:public_key).
+gen_ssh_key() {
+  local path="$1" comment="$2"
+  [[ -f "$path" ]] && return 0
+  log "Gerando chave SSH ausente: $(basename "$path")"
+  ssh-keygen -t ed25519 -C "$comment" -f "$path" -N "" -q
+  chmod 600 "$path"; chmod 644 "$path.pub"
+  ok "gerada $(basename "$path") — a etapa 08 cadastra a .pub no GitHub"
+}
+host_tag="$(whoami)@$(hostname -s 2>/dev/null || echo host)"
+gen_ssh_key "$HOME/.ssh/id_rsa_github"      "$host_tag github auth"
+gen_ssh_key "$HOME/.ssh/id_rsa_git_signing" "$host_tag git signing"
+
+# Garante que a chave de assinatura esteja no allowed_signers (p/ verificação
+# local de commits assinados; necessário quando a chave foi gerada agora).
+ALLOWED="$HOME/.config/git/allowed_signers"
+SIGN_PUB="$HOME/.ssh/id_rsa_git_signing.pub"
+if [[ -f "$SIGN_PUB" ]]; then
+  mkdir -p "$(dirname "$ALLOWED")"
+  sign_key="$(cat "$SIGN_PUB")"
+  if ! grep -qF "$sign_key" "$ALLOWED" 2>/dev/null; then
+    echo "wesleyosantos91@gmail.com $sign_key" >> "$ALLOWED"
+    ok "chave de assinatura adicionada ao allowed_signers"
+  fi
 fi
 
 ok "Dotfiles restaurados"
