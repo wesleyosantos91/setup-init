@@ -77,7 +77,7 @@ O **token do GitHub não pode ser salvo no backup** (fica no keyring do sistema)
 Depois de formatar, reautentique. A etapa 08 já faz isso, mas o passo é:
 
 ```bash
-gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
+gh auth login -h github.com -p ssh -s admin:public_key,admin:ssh_signing_key,gist,read:org,repo
 ```
 
 1. Escolha **GitHub.com**
@@ -86,8 +86,9 @@ gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
 4. Autentique pelo **navegador** (login na conta `wesleyosantos91`) ou cole um token
 5. Confirme com `gh auth status`
 
-> Escopos necessários: `admin:public_key, gist, read:org, repo`
-> (o `admin:public_key` é o que permite a etapa 08 cadastrar suas chaves SSH).
+> Escopos necessários: `admin:public_key, admin:ssh_signing_key, gist, read:org, repo`
+> (`admin:public_key` cadastra a chave de **autenticação**; `admin:ssh_signing_key`
+> cadastra a de **assinatura** — sem ele a etapa 08 não consegue subir a signing key).
 
 ## 3. GitHub — cadastrar as chaves SSH na conta
 
