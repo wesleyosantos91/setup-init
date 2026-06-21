@@ -32,14 +32,14 @@ fi
 if have agy; then
   if [[ "${SETUP_UPDATE:-0}" == "1" ]]; then
     log "agy (Antigravity) presente — tentando atualizar (SETUP_UPDATE=1)"
-    agy update >/dev/null 2>&1 || curl -fsSL https://antigravity.google/install.sh | bash || \
+    agy update >/dev/null 2>&1 || curl -fsSL https://antigravity.google/cli/install.sh | bash || \
       warn "não atualizou o agy"
   else
     ok "agy já instalado (use SETUP_UPDATE=1 para atualizar)"
   fi
 else
   log "Instalando Antigravity CLI (agy)"
-  curl -fsSL https://antigravity.google/install.sh | bash || \
+  curl -fsSL https://antigravity.google/cli/install.sh | bash || \
     warn "Falha ao instalar Antigravity CLI. Instale manualmente o 'agy'."
 fi
 
@@ -53,10 +53,17 @@ fi
 
 # --- rtk (Rust Token Killer) ---
 if have rtk; then
-  ok "rtk já instalado"
+  if [[ "${SETUP_UPDATE:-0}" == "1" ]]; then
+    log "rtk presente — reinstalando (SETUP_UPDATE=1)"
+    curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
+      || warn "não atualizou o rtk"
+  else
+    ok "rtk já instalado (use SETUP_UPDATE=1 para atualizar)"
+  fi
 else
-  warn "rtk (Rust Token Killer) não tem instalador público padrão."
-  warn "Reinstale o binário em ~/.local/bin/rtk conforme sua fonte original."
+  log "Instalando rtk (Rust Token Killer)"
+  curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
+    || warn "Falha ao instalar rtk. Instale manualmente: https://github.com/rtk-ai/rtk"
 fi
 
 ok "CLIs processadas"
