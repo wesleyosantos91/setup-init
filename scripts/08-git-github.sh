@@ -14,11 +14,16 @@ if gh auth status >/dev/null 2>&1; then
 else
   warn "É necessário autenticar no GitHub (passo interativo)."
   echo "Conta original: wesleyosantos91 | protocolo git: ssh"
-  echo "Escopos do token original: admin:public_key, gist, read:org, repo"
+  echo "Escopos: admin:public_key, admin:ssh_signing_key, gist, read:org, repo"
   echo
-  read -r -p "Autenticar agora com 'gh auth login'? [s/N] " resp
+  # '|| true': sob set -e, o read retorna não-zero ao receber EOF (execução
+  # não-interativa) e abortaria o script antes de tratar o caso "não".
+  resp=""
+  read -r -p "Autenticar agora com 'gh auth login'? [s/N] " resp || true
   if [[ "$resp" =~ ^[sS]$ ]]; then
-    gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
+    # admin:ssh_signing_key é necessário p/ cadastrar a chave de ASSINATURA
+    # (gh ssh-key add --type signing); admin:public_key cobre só a de auth.
+    gh auth login -h github.com -p ssh -s admin:public_key,admin:ssh_signing_key,gist,read:org,repo
   else
     warn "Pule por enquanto. Depois rode: gh auth login -h github.com -p ssh"
   fi
@@ -35,6 +40,15 @@ fi
 if gh auth status >/dev/null 2>&1; then
   host="$(hostname -s 2>/dev/null || echo setup)"
 
+  # Em máquina autenticada ANTES (token sem admin:ssh_signing_key), o cadastro
+  # da chave de ASSINATURA falharia. Detecta e adiciona o escopo via refresh
+  # (passo interativo curto). Num 'gh auth login' novo o escopo já vem do -s.
+  if ! gh auth status 2>&1 | grep -q 'admin:ssh_signing_key'; then
+    warn "Token sem 'admin:ssh_signing_key' (necessário p/ a chave de assinatura) — atualizando"
+    gh auth refresh -h github.com -s admin:ssh_signing_key \
+      || warn "Não adicionei o escopo; rode: gh auth refresh -h github.com -s admin:ssh_signing_key"
+  fi
+
   # Lista títulos já cadastrados para evitar duplicar
   existing_auth="$(gh ssh-key list 2>/dev/null || true)"
 
@@ -47,7 +61,7 @@ if gh auth status >/dev/null 2>&1; then
       log "Cadastrando chave '$title' ($type) no GitHub"
       gh ssh-key add "$pub" --title "$title" --type "$type" \
         && ok "chave $type cadastrada" \
-        || warn "não consegui cadastrar a chave $type (verifique o escopo admin:public_key)"
+        || warn "não consegui cadastrar a chave $type (auth precisa de admin:public_key; signing precisa de admin:ssh_signing_key — rode: gh auth refresh -h github.com -s admin:ssh_signing_key)"
     fi
   }
 

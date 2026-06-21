@@ -137,12 +137,12 @@ export NVM_DIR="$HOME/.nvm"
 # pyenv - Python Version Manager
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
+command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - zsh)"
 
 # goenv - Go Version Manager
 export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init - zsh)"
+[[ -d "$GOENV_ROOT/bin" ]] && export PATH="$GOENV_ROOT/bin:$PATH"
+command -v goenv >/dev/null 2>&1 && eval "$(goenv init - zsh)"
 
 # Go workspace
 export GOPATH="$HOME/go"

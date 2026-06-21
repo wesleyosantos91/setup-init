@@ -25,17 +25,16 @@ chmod +x setup.sh scripts/*.sh
 | `00-system-packages` | Repos Docker CE e GitHub CLI; `git gh jq make gcc gcc-c++ cmake automake curl wget tree vim zsh` + libs de build (para pyenv/goenv); **Docker CE** completo |
 | `01-flatpak` | Flathub + **VS Code**, **Flameshot**, **Insomnia** |
 | `02-shell-zsh-omz` | **Oh My Zsh**, tema **Powerlevel10k**, plugins `zsh-autosuggestions` e `zsh-syntax-highlighting`; define `zsh` como shell padrão |
-| `03-version-managers` | **SDKMAN**, **nvm**, **pyenv**, **goenv** |
-| `04-sdks` | Java **25.0.3-tem**, Maven **3.9.16**, Gradle **9.6.0**, Node **22.23.0** (default) + **24.17.0**, Python **3.13.14**, Go **1.26.4** |
+| `03-version-managers` | **SDKMAN**, **nvm**, **pyenv**, **goenv**, **rustup** |
+| `04-sdks` | Java **25.0.3-tem**, Maven **3.9.16**, Gradle **9.6.0**, Node **22.23.0** (default) + **24.17.0**, Python **3.13.14**, Go **1.26.4**, Rust **stable** (+ `rustfmt`, `clippy`) |
 | `05-npm-globals` | `@devcontainers/cli`, `@fission-ai/openspec`, `@github/copilot`, `@google/gemini-cli`, `@openai/codex`, `corepack`, `repomix` |
 | `06-cli-tools` | **Claude Code** (`claude`), **Codex** (`codex`), **Antigravity** (`agy`), **rtk** |
 | `07-dotfiles` | `.zshrc .bashrc .bash_profile .profile .p10k.zsh .gitconfig .gitignore_global .gitconfig-itau`, config git de assinatura (`allowed_signers`), config do `gh`, `~/.ssh/config` e **chaves SSH** |
 | `08-git-github` | `gh auth login` (interativo) + verificação da config git |
-| `09-jetbrains` | **JetBrains Toolbox** (instale as IDEs por ele: IntelliJ, GoLand, PyCharm, WebStorm, DataGrip, RustRover, AIR) |
+| `09-jetbrains` | **JetBrains Toolbox** instalado em `~/Develop/Tools/JetBrains/Toolbox`; instale as IDEs por ele (IntelliJ, GoLand, PyCharm, WebStorm, DataGrip, RustRover, AIR) — elas vão para `~/Develop/Tools/JetBrains` |
 | `10-docker` | habilita o serviço `docker` e adiciona o usuário ao grupo `docker` |
-| `11-rust` | **Rust** via `rustup` (toolchain `stable` + `cargo`, `rustfmt`, `clippy`) |
 | `12-fonts` | Fontes do usuário — **MesloLGS NF** (Nerd Font usada pelo Powerlevel10k) |
-| `13-extra-tools` | EPEL + **git-delta, fzf, zoxide, bat, fd, direnv, btop, tmux, ShellCheck, yq** (dnf); **lazygit, lazydocker, gitleaks** (binário GitHub); **tldr/tealdeer** (cargo); **pre-commit** (pip) |
+| `13-extra-tools` | EPEL + **git-delta, fzf, zoxide, bat, fd, direnv, btop, tmux, ShellCheck, yq** (dnf, com fallback p/ binário/cargo no EPEL 10); **lazygit, lazydocker, gitleaks** (binário GitHub); **tldr/tealdeer** (cargo); **pre-commit** (pipx) |
 | `14-lang-toolkits` | **JVM**: mvnd, springboot, jbang · **Go**: golangci-lint, goimports, dlv, govulncheck, air, mockgen · **Python**: uv, pipx, ruff, mypy, pytest · **Node**: pnpm/yarn (corepack) + typescript, prettier, eslint · **Rust**: cargo-watch, cargo-nextest, cargo-audit, cargo-edit, cargo-update, sccache, rust-analyzer |
 | `99-validate` | **Doctor**: confere todas as ferramentas/configs e imprime ✅ "TUDO COM SUCESSO" ou lista o que faltou |
 
@@ -44,7 +43,9 @@ chmod +x setup.sh scripts/*.sh
 ## ⚠️ Segredos (pasta `secrets/`)
 
 Contém suas **chaves SSH privadas** (`id_rsa_github`, `id_rsa_git_signing`) e
-`known_hosts`. São restauradas em `~/.ssh` com permissão `600`.
+`known_hosts`. São restauradas em `~/.ssh` com permissão `600`. Se a pasta não
+existir, a etapa 07 **gera chaves novas** automaticamente (e a etapa 08 as
+cadastra no GitHub após o `gh auth login`).
 
 - **NÃO** suba esta pasta para um repositório Git público.
 - Guarde-a em local seguro (pendrive criptografado, gerenciador de segredos).
@@ -76,7 +77,7 @@ O **token do GitHub não pode ser salvo no backup** (fica no keyring do sistema)
 Depois de formatar, reautentique. A etapa 08 já faz isso, mas o passo é:
 
 ```bash
-gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
+gh auth login -h github.com -p ssh -s admin:public_key,admin:ssh_signing_key,gist,read:org,repo
 ```
 
 1. Escolha **GitHub.com**
@@ -85,16 +86,19 @@ gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
 4. Autentique pelo **navegador** (login na conta `wesleyosantos91`) ou cole um token
 5. Confirme com `gh auth status`
 
-> Escopos necessários: `admin:public_key, gist, read:org, repo`
-> (o `admin:public_key` é o que permite a etapa 08 cadastrar suas chaves SSH).
+> Escopos necessários: `admin:public_key, admin:ssh_signing_key, gist, read:org, repo`
+> (`admin:public_key` cadastra a chave de **autenticação**; `admin:ssh_signing_key`
+> cadastra a de **assinatura** — sem ele a etapa 08 não consegue subir a signing key).
 
 ## 3. GitHub — cadastrar as chaves SSH na conta
 
 As chaves **privadas** são restauradas do backup (`secrets/`) pela etapa 07.
-As **públicas** precisam estar cadastradas na sua conta do GitHub:
+Se não houver backup, a **etapa 07 gera novas chaves `ed25519` automaticamente**
+(`id_rsa_github` e `id_rsa_git_signing`) e adiciona a de assinatura ao
+`allowed_signers`. As **públicas** precisam estar cadastradas na sua conta:
 
 - **Se você usar a MESMA chave do backup** → ela já está cadastrada lá, nada a fazer.
-- **Se gerar chave nova** → a etapa 08 tenta cadastrar automaticamente via
+- **Se a chave for gerada (ou nova)** → a etapa 08 cadastra automaticamente via
   `gh ssh-key add` (precisa do `gh` autenticado com escopo `admin:public_key`).
 
 Cadastro manual, se preferir, em **Settings → SSH and GPG keys**:
@@ -126,11 +130,14 @@ Se der erro de chave, confirme:
 
 ## 5. IDEs JetBrains (via Toolbox)
 
-A etapa 09 instala o **JetBrains Toolbox**, mas as IDEs e o login são manuais:
+A etapa 09 instala o **JetBrains Toolbox** em `~/Develop/Tools/JetBrains/Toolbox`
+(o caminho padrão `~/.local/share/JetBrains/Toolbox` vira um symlink para lá).
+As IDEs e o login são manuais:
 
 1. Abra o **JetBrains Toolbox** (já iniciado pela etapa 09)
 2. Faça login na sua conta JetBrains (licença)
 3. Instale: **IntelliJ IDEA, GoLand, PyCharm, WebStorm, DataGrip, RustRover, AIR**
+   — serão instaladas em `~/Develop/Tools/JetBrains`
 4. O PATH dos atalhos (`idea`, `goland`, ...) já está no `~/.profile`
 
 ## 6. Docker sem `sudo` (relogin)
@@ -144,12 +151,22 @@ docker run --rm hello-world
 
 ## 7. `rtk` (Rust Token Killer)
 
-Não tem instalador público padrão. Reponha o binário manualmente:
+Instalado automaticamente pela etapa 06 via instalador oficial:
 
 ```bash
-cp /caminho/do/seu/rtk ~/.local/bin/rtk && chmod +x ~/.local/bin/rtk
+curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh
 rtk --version
 ```
+
+Para usá-lo com as CLIs de IA (compacta a saída dos comandos antes de chegar ao
+LLM, economizando tokens):
+
+```bash
+rtk init -g --auto-patch   # Claude Code (hook em ~/.claude/settings.json)
+rtk init -g --codex        # Codex CLI (instruções em ~/.codex/AGENTS.md)
+```
+
+> Reinicie a CLI depois. Teste com `git status` (a saída virá compactada).
 
 ## 8. Trocar o shell padrão para zsh (se necessário)
 
@@ -174,7 +191,7 @@ gemini        # segue o fluxo de auth
 
 > Resumo do que é 100% manual e por quê:
 > **senha do sudo** (segurança), **gh auth login / logins de IA** (token no keyring),
-> **IDEs JetBrains** (licença/GUI), **rtk** (sem instalador público).
+> **IDEs JetBrains** (licença/GUI — o Toolbox é instalado automaticamente).
 > Todo o resto é automatizado pelos scripts.
 
 ---
