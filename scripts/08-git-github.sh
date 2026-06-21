@@ -16,7 +16,10 @@ else
   echo "Conta original: wesleyosantos91 | protocolo git: ssh"
   echo "Escopos do token original: admin:public_key, gist, read:org, repo"
   echo
-  read -r -p "Autenticar agora com 'gh auth login'? [s/N] " resp
+  # '|| true': sob set -e, o read retorna não-zero ao receber EOF (execução
+  # não-interativa) e abortaria o script antes de tratar o caso "não".
+  resp=""
+  read -r -p "Autenticar agora com 'gh auth login'? [s/N] " resp || true
   if [[ "$resp" =~ ^[sS]$ ]]; then
     gh auth login -h github.com -p ssh -s admin:public_key,gist,read:org,repo
   else
