@@ -10,6 +10,15 @@ section "Pacotes de sistema (dnf)"
 RHEL_VER="$(. /etc/os-release; echo "${VERSION_ID%%.*}")"
 log "Detectado RHEL major = ${RHEL_VER}"
 
+# zlib (headers p/ compilar Python no pyenv):
+#   RHEL 9  -> zlib-devel
+#   RHEL 10 -> zlib-devel foi substituído por zlib-ng-compat-devel
+if [[ "$RHEL_VER" -ge 10 ]]; then
+  ZLIB_PKG="zlib-ng-compat-devel"
+else
+  ZLIB_PKG="zlib-devel"
+fi
+
 # Baixa um .repo direto para /etc/yum.repos.d (funciona em dnf4 e dnf5,
 # evitando as diferenças do 'config-manager' entre as versões).
 add_repo() {
@@ -39,7 +48,7 @@ log "Instalando ferramentas base"
 sudo dnf -y install \
   git gh jq make automake gcc gcc-c++ cmake \
   curl wget tree vim-enhanced zsh \
-  zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
+  "$ZLIB_PKG" bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
   openssl-devel xz xz-devel libffi-devel tk-devel \
   patch findutils which unzip zip tar gzip
 

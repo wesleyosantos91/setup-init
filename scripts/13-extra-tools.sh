@@ -38,11 +38,15 @@ fi
 #   fd      -> fd-find       | bat -> bat       | delta -> git-delta
 #   shellcheck -> ShellCheck
 log "Instalando pacotes via dnf/EPEL"
-sudo dnf -y install \
+# strict=0 faz o dnf pular pacotes sem correspondência (ex.: git-delta, zoxide,
+# direnv ausentes no EPEL 10) e instalar o resto, em vez de abortar a transação
+# inteira. Portátil entre dnf4 (RHEL 9) e dnf5 (RHEL 10). Os ausentes caem nos
+# fallbacks de binário/cargo logo abaixo.
+sudo dnf -y install --setopt=strict=0 \
   git-delta fzf zoxide bat fd-find \
   direnv \
   btop tmux ShellCheck yq \
-  2>/dev/null || warn "Alguns pacotes dnf falharam (ver acima); seguindo com binários"
+  || warn "Alguns pacotes dnf falharam (ver acima); seguindo com binários"
 
 # 'fd' às vezes vem como 'fdfind' — cria atalho se preciso
 if ! have fd && have fdfind; then
@@ -62,8 +66,12 @@ install_gh_bin() {
   if have "$binname"; then ok "$binname já instalado"; return; fi
   log "Instalando $binname (github:$repo)"
   local url tmp
+  # '|| true' evita que set -e/pipefail mate o script quando o grep não casa
+  # nada ou o head -1 fecha o pipe cedo (SIGPIPE) — tratamos url vazia abaixo.
+  # grep case-insensitive (-i): projetos divergem na capitalização do SO no
+  # nome do asset (ex.: lazygit usa 'linux_', lazydocker usa 'Linux_').
   url="$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" \
-        | grep -oE "https://[^\"]+${pattern}[^\"]*" | head -1)"
+        | grep -ioE "https://[^\"]+${pattern}[^\"]*" | head -1 || true)"
   if [[ -z "$url" ]]; then warn "Release de $binname não encontrada — pule/instale manual"; return; fi
   tmp="$(mktemp -d)"
   curl -fsSL "$url" -o "$tmp/pkg"
@@ -84,10 +92,13 @@ install_gh_bin() {
 }
 
 # lazygit / lazydocker / gitleaks -> tarballs Linux x86_64
-LZ_ARCH="$ARCH"; [[ "$ARCH" == "aarch64" ]] && LZ_ARCH="arm64"
-install_gh_bin "jesseduffield/lazygit"    "Linux_${ARCH}.tar.gz"     "lazygit"
-install_gh_bin "jesseduffield/lazydocker" "Linux_${ARCH}.tar.gz"     "lazydocker"
-install_gh_bin "gitleaks/gitleaks"        "linux_${LZ_ARCH}.tar.gz"  "gitleaks"
+# Cada projeto nomeia o arch de um jeito:
+#   lazygit/lazydocker -> x86_64 / arm64   (grep é case-insensitive)
+#   gitleaks           -> x64 / arm64
+install_gh_bin "jesseduffield/lazygit"    "linux_${ARCH}.tar.gz"     "lazygit"
+install_gh_bin "jesseduffield/lazydocker" "linux_${ARCH}.tar.gz"     "lazydocker"
+GL_ARCH="x64"; [[ "$ARCH" == "aarch64" ]] && GL_ARCH="arm64"
+install_gh_bin "gitleaks/gitleaks"        "linux_${GL_ARCH}.tar.gz"  "gitleaks"
 # yq (mikefarah) — só se não veio do EPEL
 if ! have yq; then
   YQ_ARCH="amd64"; [[ "$ARCH" == "aarch64" ]] && YQ_ARCH="arm64"
@@ -136,14 +147,22 @@ else
   warn "cargo indisponível — pulei tldr (rode o script 11-rust antes)"
 fi
 
-# --- pre-commit via pip (Python do pyenv) ---
+# --- pre-commit (Python do pyenv) ---
+# Inicializa o pyenv aqui — este script roda em subshell e não herda o init
+# dos dotfiles, então sem isto 'pip'/'pipx' não estariam no PATH.
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d "$PYENV_ROOT/bin" ]] && { export PATH="$PYENV_ROOT/bin:$PATH"; eval "$(pyenv init - 2>/dev/null)"; }
+export PATH="$HOME/.local/bin:$PATH"
 if have pre-commit; then
   ok "pre-commit já instalado"
+elif have pipx; then
+  log "Instalando pre-commit via pipx"
+  pipx install pre-commit || warn "Falha ao instalar pre-commit"
 elif have pip; then
   log "Instalando pre-commit via pip"
   pip install --upgrade pre-commit || warn "Falha ao instalar pre-commit"
 else
-  warn "pip indisponível — pulei pre-commit (rode o script 04-sdks antes)"
+  warn "pip/pipx indisponível — pulei pre-commit (rode 04-sdks/14-lang-toolkits antes)"
 fi
 
 ok "Ferramentas extras processadas"
