@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Aplicativos Flatpak (VS Code, Flameshot, Insomnia).
+# Aplicativos Flatpak (VS Code, Flameshot, Insomnia, draw.io).
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
@@ -20,6 +20,7 @@ APPS=(
   com.visualstudio.code     # Visual Studio Code
   org.flameshot.Flameshot   # Flameshot (screenshots)
   rest.insomnia.Insomnia    # Insomnia (REST client)
+  com.jgraph.drawio.desktop # draw.io / diagrams.net
 )
 
 for app in "${APPS[@]}"; do

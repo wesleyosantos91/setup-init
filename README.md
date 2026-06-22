@@ -23,7 +23,7 @@ chmod +x setup.sh scripts/*.sh
 | Etapa | Conteúdo |
 |-------|----------|
 | `00-system-packages` | Repos Docker CE e GitHub CLI; `git gh jq make gcc gcc-c++ cmake automake curl wget tree vim zsh` + libs de build (para pyenv/goenv); **Docker CE** completo |
-| `01-flatpak` | Flathub + **VS Code**, **Flameshot**, **Insomnia** |
+| `01-flatpak` | Flathub + **VS Code**, **Flameshot**, **Insomnia**, **draw.io / diagrams.net** |
 | `02-shell-zsh-omz` | **Oh My Zsh**, tema **Powerlevel10k**, plugins `zsh-autosuggestions` e `zsh-syntax-highlighting`; define `zsh` como shell padrão |
 | `03-version-managers` | **SDKMAN**, **nvm**, **pyenv**, **goenv**, **rustup** |
 | `04-sdks` | Java **25.0.3-tem**, Maven **3.9.16**, Gradle **9.6.0**, Node **22.23.0** (default) + **24.17.0**, Python **3.13.14**, Go **1.26.4**, Rust **stable** (+ `rustfmt`, `clippy`) |
