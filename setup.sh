@@ -26,6 +26,7 @@ STEPS=(
   "08-git-github.sh"        # gh auth login + verificação
   "09-jetbrains.sh"         # JetBrains Toolbox + IDEs
   "10-docker.sh"            # serviço docker + grupo
+  "11-kiro.sh"              # Kiro Desktop + Kiro CLI
   "12-fonts.sh"             # fontes do usuário (MesloLGS NF p/ p10k)
   "13-extra-tools.sh"       # delta, fzf, zoxide, bat, fd, direnv, lazygit, etc.
   "14-lang-toolkits.sh"     # toolkits por linguagem (JVM/Go/Python/Node/Rust)

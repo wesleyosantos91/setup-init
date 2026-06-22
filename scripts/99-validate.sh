@@ -122,6 +122,8 @@ check_cmd "shellcheck" shellcheck
 check_cmd "pre-commit" pre-commit
 check_cmd "claude"    claude
 check_cmd "codex"     codex
+check_cmd "Kiro CLI"  kiro-cli
+check_cmd "Kiro Desktop" kiro
 
 log "Git / GitHub"
 check_path ".gitconfig"      "$HOME/.gitconfig"

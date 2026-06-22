@@ -33,6 +33,7 @@ chmod +x setup.sh scripts/*.sh
 | `08-git-github` | `gh auth login` (interativo) + verificação da config git |
 | `09-jetbrains` | **JetBrains Toolbox** instalado em `~/Develop/Tools/JetBrains/Toolbox`; instale as IDEs por ele (IntelliJ, GoLand, PyCharm, WebStorm, DataGrip, RustRover, AIR) — elas vão para `~/Develop/Tools/JetBrains` |
 | `10-docker` | habilita o serviço `docker` e adiciona o usuário ao grupo `docker` |
+| `11-kiro` | **Kiro Desktop** instalado em `~/Develop/Tools/Kiro` com comando `kiro` em `~/.local/bin`; **Kiro CLI** (`kiro-cli`) via instalador oficial |
 | `12-fonts` | Fontes do usuário — **MesloLGS NF** (Nerd Font usada pelo Powerlevel10k) |
 | `13-extra-tools` | EPEL + **git-delta, fzf, zoxide, bat, fd, direnv, btop, tmux, ShellCheck, yq** (dnf, com fallback p/ binário/cargo no EPEL 10); **lazygit, lazydocker, gitleaks** (binário GitHub); **tldr/tealdeer** (cargo); **pre-commit** (pipx) |
 | `14-lang-toolkits` | **JVM**: mvnd, springboot, jbang · **Go**: golangci-lint, goimports, dlv, govulncheck, air, mockgen · **Python**: uv, pipx, ruff, mypy, pytest · **Node**: pnpm/yarn (corepack) + typescript, prettier, eslint · **Rust**: cargo-watch, cargo-nextest, cargo-audit, cargo-edit, cargo-update, sccache, rust-analyzer |
@@ -176,15 +177,29 @@ A etapa 02 tenta `chsh` automaticamente. Se falhar (precisa de senha):
 chsh -s "$(which zsh)"     # efeito após novo login
 ```
 
-## 9. Logins das CLIs de IA
+## 9. Kiro Desktop / CLI
 
-`claude`, `codex`, `gemini`, `copilot` e `agy` são instalados, mas o **login de
+A etapa 11 instala:
+
+```bash
+kiro .       # abre o Kiro Desktop na pasta atual
+kiro-cli     # abre o Kiro CLI
+```
+
+O login do Kiro é interativo na primeira execução (GitHub, Google, AWS Builder ID
+ou AWS IAM Identity Center). O Desktop fica em `~/Develop/Tools/Kiro` e o comando
+`kiro` é criado em `~/.local/bin`, no mesmo estilo de `code`.
+
+## 10. Logins das CLIs de IA
+
+`claude`, `codex`, `gemini`, `copilot`, `agy` e `kiro-cli` são instalados, mas o **login de
 cada um é interativo** na primeira execução (abrem navegador/pedem token):
 
 ```bash
 claude        # primeira execução pede login
 codex login
 gemini        # segue o fluxo de auth
+kiro-cli      # primeira execução pede login
 ```
 
 ---
