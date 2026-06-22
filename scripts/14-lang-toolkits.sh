@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Toolkits de produtividade/validação por linguagem.
-#   JVM    : mvnd, springboot, jbang            (SDKMAN)
+#   JVM    : mvnd, springboot, jbang, VisualVM, JMC (SDKMAN)
 #   Go     : golangci-lint, goimports, dlv,      (go install -> ~/go/bin)
 #            govulncheck, air, mockgen
 #   Python : uv, pipx, ruff, mypy, pytest        (uv installer + pipx)
@@ -26,6 +26,15 @@ if [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
     echo n | sdk install "$c" >/dev/null 2>&1 || true
     if [[ -d "$SDKMAN_DIR/candidates/$c" ]]; then ok "$c instalado"; else warn "falha em $c"; fi
   done
+  log "sdk install visualvm 2.2.1"
+  sdk install visualvm 2.2.1 >/dev/null 2>&1 || true
+  sdk default visualvm 2.2.1 >/dev/null 2>&1 || true
+  if [[ -d "$SDKMAN_DIR/candidates/visualvm/2.2.1" ]]; then ok "visualvm instalado"; else warn "falha em visualvm"; fi
+
+  log "sdk install jmc 9.1.1-zulu"
+  sdk install jmc 9.1.1-zulu >/dev/null 2>&1 || true
+  sdk default jmc 9.1.1-zulu >/dev/null 2>&1 || true
+  if [[ -d "$SDKMAN_DIR/candidates/jmc/9.1.1-zulu" ]]; then ok "jmc instalado"; else warn "falha em jmc"; fi
   set -u
   ok "JVM toolkit pronto"
 else

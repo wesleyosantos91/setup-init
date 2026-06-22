@@ -78,6 +78,14 @@ log "Toolkit JVM"
 check_cmd "mvnd"       mvnd
 check_cmd "springboot" spring
 check_cmd "jbang"      jbang
+check_cmd "VisualVM"   visualvm
+check_cmd "JDK Mission Control" jmc
+check_cmd "jcmd"       jcmd
+check_cmd "jps"        jps
+check_cmd "jstack"     jstack
+check_cmd "jmap"       jmap
+check_cmd "jstat"      jstat
+check_cmd "JFR"        jfr
 
 log "Toolkit Go"
 check_cmd "golangci-lint" golangci-lint

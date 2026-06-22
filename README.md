@@ -26,7 +26,7 @@ chmod +x setup.sh scripts/*.sh
 | `01-flatpak` | Flathub + **VS Code**, **Flameshot**, **Insomnia**, **draw.io / diagrams.net** |
 | `02-shell-zsh-omz` | **Oh My Zsh**, tema **Powerlevel10k**, plugins `zsh-autosuggestions` e `zsh-syntax-highlighting`; define `zsh` como shell padrão |
 | `03-version-managers` | **SDKMAN**, **nvm**, **pyenv**, **goenv**, **rustup** |
-| `04-sdks` | Java **25.0.3-tem**, Maven **3.9.16**, Gradle **9.6.0**, Node **22.23.0** (default) + **24.17.0**, Python **3.13.14**, Go **1.26.4**, Rust **stable** (+ `rustfmt`, `clippy`) |
+| `04-sdks` | Java **25.0.3-tem** (inclui `jcmd`, `jps`, `jstack`, `jmap`, `jstat`, `jfr`), Maven **3.9.16**, Gradle **9.6.0**, Node **22.23.0** (default) + **24.17.0**, Python **3.13.14**, Go **1.26.4**, Rust **stable** (+ `rustfmt`, `clippy`) |
 | `05-npm-globals` | `@devcontainers/cli`, `@fission-ai/openspec`, `@github/copilot`, `@google/gemini-cli`, `@openai/codex`, `corepack`, `repomix` |
 | `06-cli-tools` | **Claude Code** (`claude`), **Codex** (`codex`), **Antigravity** (`agy`), **rtk** |
 | `07-dotfiles` | `.zshrc .bashrc .bash_profile .profile .p10k.zsh .gitconfig .gitignore_global .gitconfig-itau`, config git de assinatura (`allowed_signers`), config do `gh`, `~/.ssh/config` e **chaves SSH** |
@@ -36,7 +36,7 @@ chmod +x setup.sh scripts/*.sh
 | `11-kiro` | **Kiro Desktop** instalado em `~/Develop/Tools/Kiro` com comando `kiro` em `~/.local/bin`; **Kiro CLI** (`kiro-cli`) via instalador oficial |
 | `12-fonts` | Fontes do usuário — **MesloLGS NF** (Nerd Font usada pelo Powerlevel10k) |
 | `13-extra-tools` | EPEL + **git-delta, fzf, zoxide, bat, fd, direnv, btop, tmux, ShellCheck, yq** (dnf, com fallback p/ binário/cargo no EPEL 10); **lazygit, lazydocker, gitleaks** (binário GitHub); **tldr/tealdeer** (cargo); **pre-commit** (pipx) |
-| `14-lang-toolkits` | **JVM**: mvnd, springboot, jbang · **Go**: golangci-lint, goimports, dlv, govulncheck, air, mockgen · **Python**: uv, pipx, ruff, mypy, pytest · **Node**: pnpm/yarn (corepack) + typescript, prettier, eslint · **Rust**: cargo-watch, cargo-nextest, cargo-audit, cargo-edit, cargo-update, sccache, rust-analyzer |
+| `14-lang-toolkits` | **JVM**: mvnd, springboot, jbang, VisualVM **2.2.1**, JDK Mission Control **9.1.1-zulu** · **Go**: golangci-lint, goimports, dlv, govulncheck, air, mockgen · **Python**: uv, pipx, ruff, mypy, pytest · **Node**: pnpm/yarn (corepack) + typescript, prettier, eslint · **Rust**: cargo-watch, cargo-nextest, cargo-audit, cargo-edit, cargo-update, sccache, rust-analyzer |
 | `99-validate` | **Doctor**: confere todas as ferramentas/configs e imprime ✅ "TUDO COM SUCESSO" ou lista o que faltou |
 
 > Para validar a qualquer momento (sem reinstalar): `./setup.sh 99`
