@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/scripts/lib.sh"
 
 STEPS=(
   "00-system-packages.sh"   # dnf: docker, gh, git, build tools, etc.
-  "01-flatpak.sh"           # VS Code, Flameshot, Insomnia
+  "01-flatpak.sh"           # VS Code, Flameshot, Insomnia, draw.io
   "02-shell-zsh-omz.sh"     # zsh + oh-my-zsh + p10k + plugins
   "03-version-managers.sh"  # SDKMAN, nvm, pyenv, goenv, rustup
   "04-sdks.sh"              # Java/Maven/Gradle, Node, Python, Go, Rust (versões fixas)
